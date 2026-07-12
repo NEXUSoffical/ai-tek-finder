@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Agent - About</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: transparent; 
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            padding: 50px 20px;
+        }
+
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; 
+        }
+
+        .terminal-container {
+            position: relative;
+            z-index: 10; 
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 1px solid #00ff00; 
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+        }
+
+        /* TARGETING CORNERS */
+        .corner {
+            position: absolute;
+            color: #00ff00;
+            font-size: 1.2rem;
+            line-height: 1;
+            background: #000;
+        }
+        .c-tl { top: -9px; left: -6px; padding: 0 4px; }
+        .c-tr { top: -9px; right: -6px; padding: 0 4px; }
+        .c-bl { bottom: -9px; left: -6px; padding: 0 4px; }
+        .c-br { bottom: -9px; right: -6px; padding: 0 4px; }
+
+        h1, h2 { 
+            font-weight: bold; 
+            letter-spacing: 2px; 
+            text-shadow: 0 0 8px #00ff00;
+        }
+        h1 { font-size: 2rem; margin-bottom: 30px; border-bottom: 1px dashed #00ff00; padding-bottom: 10px; }
+        h2 { font-size: 1.4rem; margin: 30px 0 15px 0; color: #88ff88; }
+        
+        p { font-size: 1.05rem; margin-bottom: 15px; color: #00ff00; line-height: 1.6; }
+
+        /* FEATURE BOXES */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .feature-box {
+            border: 1px solid rgba(0, 255, 0, 0.5);
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            position: relative;
+        }
+        .feature-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* BACK BUTTON */
+        .nav-btn {
+            display: inline-block;
+            background-color: #00ff00;
+            color: #000;
+            border: 2px solid #00ff00;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background-color: #000; color: #00ff00; }
+        
+        .cursor { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="terminal-container">
+        <span class="corner c-tl">+</span>
+        <span class="corner c-tr">+</span>
+        <span class="corner c-bl">+</span>
+        <span class="corner c-br">+</span>
+
+        <a href="index.html" class="nav-btn">< RETURN TO MAINFRAME</a>
+
+        <h1>> SYSTEM_DOCS <span class="cursor">_</span></h1>
+
+        <h2>[ HOW IT WORKS ]</h2>
+        <p>Think of Git Agent like a super-smart digital librarian for code. Instead of you having to search through millions of messy files to find what you need, you just tell the Agent what you want in normal, everyday words.</p>
+        
+        <p><strong>Step 1: Understand.</strong> You type "I want a game engine." The Agent translates your English into complex search code.<br>
+        <strong>Step 2: Search.</strong> It sprints into the massive GitHub library and grabs the best matches.<br>
+        <strong>Step 3: Read.</strong> It literally opens the "instruction manuals" (READMEs) of those projects and speed-reads them to make sure they are actually good.<br>
+        <strong>Step 4: Deliver.</strong> It brings the top 3 best projects right to your screen.</p>
+
+        <h2>[ CORE FEATURES ]</h2>
+        <div class="feature-grid">
+            <div class="feature-box">
+                <span class="corner c-tl">+</span><span class="corner c-tr">+</span><span class="corner c-bl">+</span><span class="corner c-br">+</span>
+                <h3>01. Natural Language Search</h3>
+                <p>No more struggling with weird search tags. Describe the project you want in plain words, and the AI handles the translation.</p>
+            </div>
+            <div class="feature-box">
+                <span class="corner c-tl">+</span><span class="corner c-tr">+</span><span class="corner c-bl">+</span><span class="corner c-br">+</span>
+                <h3>02. README Analysis Engine</h3>
+                <p>The system doesn't just look at titles. It parses the actual documentation to understand what a repository *actually* does before showing it to you.</p>
+            </div>
+            <div class="feature-box">
+                <span class="corner c-tl">+</span><span class="corner c-tr">+</span><span class="corner c-bl">+</span><span class="corner c-br">+</span>
+                <h3>03. Smart Code Discovery</h3>
+                <p>Bypasses the noise to surface hidden gems based on true relevance, not just how many "Stars" a project has.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- MATRIX RAIN ENGINE ---
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        function setCanvasSize() { canvas.height = window.innerHeight; canvas.width = window.innerWidth; }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+        
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+        const fontSize = 16;
+        let columns = Math.floor(canvas.width / fontSize);
+        let drops = [];
+        for (let x = 0; x < columns; x++) { drops[x] = Math.random() * -100; }
+        
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff00'; 
+            ctx.font = `bold ${fontSize}px Courier New`;
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+    </script>
+</body>
+</html>
