@@ -8,8 +8,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            /* THIS WAS THE BUG. Set to transparent so the rain can actually be seen! */
-            background-color: transparent; 
+            /* Locked to solid black so no white screens ever happen */
+            background-color: #000; 
             color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
@@ -25,84 +25,116 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1; 
+            /* Set to 0 so it sits perfectly in between the black body and the terminal */
+            z-index: 0; 
         }
 
         .terminal-container {
             position: relative;
             z-index: 10; 
             background-color: rgba(0, 0, 0, 0.85);
-            border: 3px solid #00ff00;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+            border: 1px solid #00ff00; 
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
             width: 90%;
             max-width: 700px;
-            padding: 35px;
-            border-radius: 8px;
+            padding: 35px 30px;
         }
 
-        .mute-btn {
+        .corner {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: transparent;
             color: #00ff00;
-            border: 1px solid #00ff00;
-            padding: 5px 10px;
-            font-family: 'Courier New', Courier, monospace;
-            cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
+            line-height: 1;
+            background: #000;
         }
+        .c-tl { top: -9px; left: -6px; padding: 0 4px; }
+        .c-tr { top: -9px; right: -6px; padding: 0 4px; }
+        .c-bl { bottom: -9px; left: -6px; padding: 0 4px; }
+        .c-br { bottom: -9px; right: -6px; padding: 0 4px; }
 
-        .mute-btn:hover {
-            background: #00ff00;
-            color: #000;
+        h1 { 
+            font-size: 1.8rem; 
+            font-weight: bold; 
+            margin-bottom: 25px; 
+            letter-spacing: 2px; 
+            text-shadow: 0 0 8px #00ff00;
         }
+        .cursor { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        h1 { font-size: 2.2rem; font-weight: bold; margin-bottom: 25px; letter-spacing: 2px; }
-        p { font-size: 1.05rem; margin-bottom: 15px; color: #00ff00; }
+        p { font-size: 1rem; margin-bottom: 15px; color: #00ff00; opacity: 0.8; }
         
-        .input-group { display: flex; gap: 15px; margin-bottom: 25px; width: 100%; }
+        .search-wrapper { margin-bottom: 20px; }
+        .input-group { display: flex; gap: 10px; width: 100%; margin-bottom: 15px;}
         
         input {
             flex: 1;
-            background-color: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff00;
+            background-color: transparent;
+            border: 1px solid #00ff00;
             color: #00ff00;
             padding: 12px 15px;
             font-size: 1.1rem;
             font-family: 'Courier New', Courier, monospace;
             outline: none;
         }
+        input::placeholder { color: rgba(0, 255, 0, 0.4); }
 
         button.execute-btn {
-            background-color: #00ff00;
-            color: #000;
-            border: none;
+            background-color: transparent;
+            color: #00ff00;
+            border: 1px solid #00ff00;
             padding: 12px 25px;
             font-size: 1.1rem;
             font-weight: bold;
             font-family: 'Courier New', Courier, monospace;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transition: all 0.2s;
         }
+        button.execute-btn:hover { background-color: #00ff00; color: #000; }
 
-        button.execute-btn:hover {
-            background-color: #000;
-            color: #00ff00;
-            border: 2px solid #00ff00;
-        }
-
-        h3 { font-size: 1.2rem; margin-bottom: 15px; letter-spacing: 1px; }
+        h3 { font-size: 1.1rem; margin: 25px 0 15px 0; letter-spacing: 1px; }
 
         #results {
-            border: 2px dashed #00ff00;
-            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px dashed rgba(0, 255, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
-            min-height: 180px;
-            max-height: 250px;
+            min-height: 150px;
+            max-height: 200px;
             overflow-y: auto;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             line-height: 1.5;
+        }
+
+        .mute-btn {
+            position: absolute;
+            bottom: -45px;
+            right: 0;
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 5px 10px;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .mute-btn:hover { background: #00ff00; color: #000; }
+        
+        .nav-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #000;
+            background: #00ff00;
+            padding: 5px 15px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 1px solid #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background: #000;
+            color: #00ff00;
         }
     </style>
 </head>
@@ -110,31 +142,39 @@
     <canvas id="matrixCanvas"></canvas>
 
     <div class="terminal-container">
-        <button id="muteBtn" onclick="toggleMute()" class="mute-btn">🔊 ON</button>
-        <h1>[ SYSTEM: AI_TEK_FINDER ]</h1>
-        <p>>_ Enter target technology query to search the GitHub database...</p>
+        <span class="corner c-tl">+</span>
+        <span class="corner c-tr">+</span>
+        <span class="corner c-bl">+</span>
+        <span class="corner c-br">+</span>
+
+        <a href="about.html" class="nav-btn">[ READ SYSTEM DOCS ]</a>
+
+        <h1>> AI_TEK_FINDER <span class="cursor">_</span></h1>
         
-        <div class="input-group">
-            <input type="text" id="userInput" placeholder="Construct query... e.g., neural network">
-            <button onclick="searchTech()" class="execute-btn">EXECUTE</button>
+        <div class="search-wrapper">
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="agent://prompt">
+                <button onclick="searchTech()" class="execute-btn">[ SEARCH ]</button>
+            </div>
         </div>
 
         <h3>[ TERMINAL OUTPUT ]</h3>
         <div id="results">SYSTEM READY. AWAITING INPUT...</div>
+
+        <button id="muteBtn" onclick="toggleMute()" class="mute-btn">🎵 SOUND: ON</button>
     </div>
 
     <script>
-        // --- SOUND ENGINE ---
         let isMuted = false;
         function toggleMute() {
             isMuted = !isMuted;
             const btn = document.getElementById('muteBtn');
             if (isMuted) {
-                btn.innerText = "🔇 OFF";
+                btn.innerText = "🎵 SOUND: OFF";
                 btn.style.color = "#ef4444"; 
                 btn.style.borderColor = "#ef4444";
             } else {
-                btn.innerText = "🔊 ON";
+                btn.innerText = "🎵 SOUND: ON";
                 btn.style.color = "#00ff00"; 
                 btn.style.borderColor = "#00ff00";
                 playBeep(600, 'square', 100); 
@@ -157,19 +197,18 @@
             } catch(e) {}
         }
 
-        // --- SEARCH ENGINE ---
         function searchTech() {
             const query = document.getElementById('userInput').value;
             const resultsDiv = document.getElementById('results');
             
             if(!query) {
                 playBeep(200, 'sawtooth', 300);
-                alert("ERROR: Input query is empty.");
+                resultsDiv.innerHTML = "<span style='color: red;'>[-] ERROR: Input query is empty.</span>";
                 return;
             }
             
             playBeep(400, 'square', 150);
-            resultsDiv.innerHTML = "<span style='color: #00ff00;'>[!] WARNING: Accessing GitHub API...</span><br><span>[i] Analyzing request...</span><br><span>[i] Deploying AI Agent...</span>";
+            resultsDiv.innerHTML = "<span style='color: #00ff00;'>[+] INITIATING PROTOCOL...</span><br><span>[+] Parsing intent...</span><br><span>[+] Accessing GitHub Mainframe...</span>";
 
             fetch(`https://ai-tek-finder.onrender.com/search?query=${encodeURIComponent(query)}`)
                 .then(response => response.json())
@@ -179,11 +218,10 @@
                 })
                 .catch(error => {
                     playBeep(200, 'sawtooth', 400);
-                    resultsDiv.innerHTML = "<span style='color: red;'>[-] ERROR: Connection failed.</span>";
+                    resultsDiv.innerHTML = "<span style='color: red;'>[-] FATAL ERROR: Core backend disconnected.</span>";
                 });
         }
 
-        // --- MATRIX RAIN ENGINE ---
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
         function setCanvasSize() { canvas.height = window.innerHeight; canvas.width = window.innerWidth; }
@@ -194,7 +232,12 @@
         const fontSize = 16;
         let columns = Math.floor(canvas.width / fontSize);
         let drops = [];
-        for (let x = 0; x < columns; x++) { drops[x] = Math.random() * -100; }
+        
+        // I changed this back to 1. 
+        // This forces every single column of rain to start on the screen INSTANTLY.
+        for (let x = 0; x < columns; x++) { 
+            drops[x] = 1; 
+        }
         
         function draw() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
