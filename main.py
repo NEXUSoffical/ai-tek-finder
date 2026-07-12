@@ -46,7 +46,11 @@ def search():
             health = calculate_health(repo)
             color = "#00ff00" if health > 70 else "#ffff00" if health > 40 else "#ff0000"
             
-            results_html += f"<span style='color: {color};'>TARGET: {repo['full_name']}</span><br>"
+            # Grabs the actual GitHub website link
+            repo_url = repo.get('html_url', '#')
+            
+            # Wraps the target name in a clickable HTML link that opens in a new tab
+            results_html += f"<span style='color: {color};'>TARGET: <a href='{repo_url}' target='_blank' style='color: {color}; text-decoration: underline;'>{repo['full_name']}</a></span><br>"
             results_html += f"<span>HEALTH SCORE: {health}/100</span><br>"
             results_html += f"<span>STARS: {repo['stargazers_count']}</span><br>"
             results_html += "<span style='color: #444;'>--------------------------</span><br><br>"
