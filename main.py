@@ -14,7 +14,7 @@ app.add_middleware(
 
 @app.get("/search")
 def search_and_analyze(query: str):
-    filler_words = {"find", "me", "an", "ai", "for", "building", "a", "the", "to", "in", "with", "out", "making"}
+    filler_words = {"find", "me", "an", "ai", "for", "building", "a", "the", "to", "in", "with", "out", "making", "game", "games"}
     words = query.lower().split()
     clean_words = [w for w in words if w not in filler_words]
     search_query = "+".join(clean_words) if clean_words else query
@@ -28,7 +28,6 @@ def search_and_analyze(query: str):
         if not items:
             return {"results": "<span style='color: #ef4444;'>[-] No matching repositories found in the Matrix.</span>"}
         
-        # Core Engine Matrix Output Formatter
         output_html = f"<span style='color: #00FF00;'>[+] MAINFRAME QUERY COMPILED: Extracted '{search_query}'</span><br>"
         output_html += f"<span style='color: #00FF00;'>[i] Pulling top {len(items)} matching platforms from GitHub...</span><br><br>"
         output_html += "==================================================<br>"
@@ -39,7 +38,7 @@ def search_and_analyze(query: str):
             desc = repo.get('description') or "No entry manifest provided."
             url = repo.get('html_url')
             
-            output_html += f"<br><span style='color: #00FF33;'>TARGET IDENTIFIED ({idx}): {name}</span><br>"
+            output_html += f"<br><span style='color: #00FF03;'>TARGET IDENTIFIED ({idx}): {name}</span><br>"
             output_html += f"<span style='color: #00FFFF;'>METRIC INDEX: ⭐ {stars} Stars</span><br>"
             output_html += f"<span style='color: #88FF88;'>CORE MANIFEST: {desc}</span><br>"
             output_html += f"<span style='color: #4488FF;'>ACCESS POINT: <a href='{url}' target='_blank' style='color: #4488FF;'>{url}</a></span><br>"
