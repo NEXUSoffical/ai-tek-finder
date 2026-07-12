@@ -8,7 +8,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            /* Locked to solid black so no white screens ever happen */
             background-color: #000; 
             color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
@@ -25,8 +24,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            /* Set to 0 so it sits perfectly in between the black body and the terminal */
-            z-index: 0; 
+            z-index: 1; 
         }
 
         .terminal-container {
@@ -161,7 +159,7 @@
         <h3>[ TERMINAL OUTPUT ]</h3>
         <div id="results">SYSTEM READY. AWAITING INPUT...</div>
 
-        <button id="muteBtn" onclick="toggleMute()" class="mute-btn">🎵 SOUND: ON</button>
+        <button id="muteBtn" onclick="toggleMute()" class="mute-btn">[ SOUND: ON ]</button>
     </div>
 
     <script>
@@ -170,11 +168,11 @@
             isMuted = !isMuted;
             const btn = document.getElementById('muteBtn');
             if (isMuted) {
-                btn.innerText = "🎵 SOUND: OFF";
+                btn.innerText = "[ SOUND: OFF ]";
                 btn.style.color = "#ef4444"; 
                 btn.style.borderColor = "#ef4444";
             } else {
-                btn.innerText = "🎵 SOUND: ON";
+                btn.innerText = "[ SOUND: ON ]";
                 btn.style.color = "#00ff00"; 
                 btn.style.borderColor = "#00ff00";
                 playBeep(600, 'square', 100); 
@@ -218,7 +216,7 @@
                 })
                 .catch(error => {
                     playBeep(200, 'sawtooth', 400);
-                    resultsDiv.innerHTML = "<span style='color: red;'>[-] FATAL ERROR: Core backend disconnected.</span>";
+                    resultsDiv.innerHTML = "<span style='color: red;'>[-] FATAL ERROR: Backend disconnected. Check terminal.</span>";
                 });
         }
 
@@ -232,12 +230,7 @@
         const fontSize = 16;
         let columns = Math.floor(canvas.width / fontSize);
         let drops = [];
-        
-        // I changed this back to 1. 
-        // This forces every single column of rain to start on the screen INSTANTLY.
-        for (let x = 0; x < columns; x++) { 
-            drops[x] = 1; 
-        }
+        for (let x = 0; x < columns; x++) { drops[x] = 1; }
         
         function draw() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
