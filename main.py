@@ -51,7 +51,6 @@ def search():
         if len(data['items']) == 0:
             return jsonify({"results": f"<span style='color: yellow;'>[!] NO TARGETS FOUND for '{query}'.</span>"})
         
-        # Updated to say TEKFINDER QUERY
         results_html = f"<span style='color: #00ff00;'>[+] TEKFINDER QUERY: '{query}'</span><br><br>"
 
         for repo in data['items']:
@@ -74,3 +73,4 @@ def search():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+    
