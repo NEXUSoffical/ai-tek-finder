@@ -71,7 +71,6 @@
         .cursor { animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Application Panels Switcher */
         .view-panel { display: none; }
         .view-panel.active { display: block; }
 
@@ -131,7 +130,7 @@
             color: #000;
         }
 
-        /* TEK FINDER SCANNER UI */
+        /* SEARCH TERMINAL UI */
         .input-group { display: flex; gap: 10px; width: 100%; margin-bottom: 15px;}
         input {
             flex: 1;
@@ -160,7 +159,7 @@
 
         h3 { font-size: 1.1rem; margin: 25px 0 15px 0; letter-spacing: 1px; }
 
-        #results {
+        .results-box {
             border: 1px dashed rgba(0, 255, 0, 0.5);
             background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
@@ -169,38 +168,6 @@
             overflow-y: auto;
             font-size: 0.95rem;
             line-height: 1.5;
-        }
-
-        /* APK/API FINDER UI */
-        .binary-list {
-            border: 1px dashed rgba(0, 255, 0, 0.5);
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            min-height: 220px;
-            max-height: 240px;
-            overflow-y: auto;
-        }
-        .binary-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
-        }
-        .binary-item:last-child { border-bottom: none; }
-        .bin-info { font-size: 0.95rem; text-align: left; }
-        .bin-type { color: #aaa; font-size: 0.8rem; margin-top: 3px; }
-        .download-link {
-            color: #00ff00;
-            text-decoration: none;
-            border: 1px solid #00ff00;
-            padding: 4px 10px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-        .download-link:hover {
-            background: #00ff00;
-            color: #000;
         }
 
         .mute-btn {
@@ -230,59 +197,44 @@
         <h1>> TEKFINDER MAINFRAME <span class="cursor">_</span></h1>
         <div class="subtitle">CORE INTELLIGENCE HUB // WELCOME USER // $TEKFIND</div>
         
-        <!-- PANEL 1: THE CENTRAL MAIN HUB (Default View) -->
+        <!-- PANEL 1: CENTRAL MAIN HUB (Gateway View) -->
         <div id="hubPanel" class="view-panel active">
             <div class="hub-grid">
                 <div class="hub-card" onclick="switchView('scanner')">
                     <h2>[ TEK FINDER ]</h2>
-                    <p>Execute global mainframe queries to extract open-source tech assets & track repos architecture health ratings.</p>
+                    <p>Execute global queries to map general open-source applications and technology frameworks.</p>
                 </div>
                 <div class="hub-card" onclick="switchView('binaries')">
                     <h2>[ APK/API FINDER ]</h2>
-                    <p>Access the core underground database file index. Directly download binaries, script frameworks, and operational hooks.</p>
+                    <p>Targeted tracking console. Specifically scans for compiled Android packages and application interface scripts.</p>
                 </div>
             </div>
         </div>
 
-        <!-- PANEL 2: TEK FINDER (Search Engine) -->
+        <!-- PANEL 2: TEK FINDER Console -->
         <div id="scannerPanel" class="view-panel">
             <button class="back-btn" onclick="switchView('hub')">&lt;&lt; RETURN TO MAIN HUB</button>
             <div class="search-wrapper">
                 <div class="input-group">
-                    <input type="text" id="userInput" placeholder="agent://prompt">
-                    <button onclick="searchTech()" class="execute-btn">[ SEARCH ]</button>
+                    <input type="text" id="userInput" placeholder="search://general-tech">
+                    <button onclick="searchTech('general')" class="execute-btn">[ SEARCH ]</button>
                 </div>
             </div>
-            <h3>[ RUNNING OPERATIONAL SEARCH SCAN ]</h3>
-            <div id="results">SYSTEM READY. AWAITING TARGET INPUT...</div>
+            <h3>[ GENERAL ARCHITECTURE SCANNER ]</h3>
+            <div id="results" class="results-box">SYSTEM READY. AWAITING TARGET INPUT...</div>
         </div>
 
-        <!-- PANEL 3: APK/API FINDER (Database Downloads) -->
+        <!-- PANEL 3: APK/API FINDER Console -->
         <div id="binariesPanel" class="view-panel">
             <button class="back-btn" onclick="switchView('hub')">&lt;&lt; RETURN TO MAIN HUB</button>
-            <div class="binary-list">
-                <div class="binary-item">
-                    <div class="bin-info">
-                        <div>tekfinder_mobile_core.apk</div>
-                        <div class="bin-type">PACKAGED ANDROID INTERFACE // SIZE: 14.2 MB</div>
-                    </div>
-                    <a href="#" class="download-link">[ GET APK ]</a>
-                </div>
-                <div class="binary-item">
-                    <div class="bin-info">
-                        <div>mainframe_bridge_hook.py</div>
-                        <div class="bin-type">EXTERNAL API ACCESS HOOKS // LANGUAGE: PYTHON</div>
-                    </div>
-                    <a href="#" class="download-link">[ GET API ]</a>
-                </div>
-                <div class="binary-item">
-                    <div class="bin-info">
-                        <div>tek_scanner_firmware.bin</div>
-                        <div class="bin-type">ENCRYPTED HARDWARE SYSTEM BINARY // SIZE: 2.1 MB</div>
-                    </div>
-                    <a href="#" class="download-link">[ GET TEK ]</a>
+            <div class="search-wrapper">
+                <div class="input-group">
+                    <input type="text" id="apkInput" placeholder="search://apk-or-api">
+                    <button onclick="searchTech('apk')" class="execute-btn">[ SCAN APK/API ]</button>
                 </div>
             </div>
+            <h3>[ DEPLOYING TARGETED APK & BINARY LOCATOR ]</h3>
+            <div id="apkResults" class="results-box">SYSTEM READY. ENTER APPLICATION OR PACKAGE PAYLOAD KEYWORD...</div>
         </div>
 
         <button id="muteBtn" onclick="toggleMute()" class="mute-btn">[ SOUND: ON ]</button>
@@ -322,14 +274,10 @@
             } catch(e) {}
         }
 
-        // Swaps between Main Hub, Search Console, and File downloads
         function switchView(viewName) {
             playBeep(500, 'sine', 80);
-            
-            // Hide all views first
             document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
             
-            // Show selected view
             if (viewName === 'hub') {
                 document.getElementById('hubPanel').classList.add('active');
             } else if (viewName === 'scanner') {
@@ -339,9 +287,20 @@
             }
         }
 
-        function searchTech() {
-            const query = document.getElementById('userInput').value;
-            const resultsDiv = document.getElementById('results');
+        // Smarter search function handling both general search and APK-specific filtering
+        function searchTech(mode) {
+            let query = "";
+            let resultsDiv = null;
+
+            if (mode === 'general') {
+                query = document.getElementById('userInput').value;
+                resultsDiv = document.getElementById('results');
+            } else {
+                // If it's the APK finder, automatically attach qualifiers to target repositories containing code assets or build configurations
+                const userText = document.getElementById('apkInput').value;
+                query = userText ? `${userText} apk OR api` : "";
+                resultsDiv = document.getElementById('apkResults');
+            }
             
             if(!query) {
                 playBeep(200, 'sawtooth', 300);
@@ -350,7 +309,7 @@
             }
             
             playBeep(400, 'square', 150);
-            resultsDiv.innerHTML = "<span style='color: #00ff00;'>[+] INITIATING PROTOCOL...</span><br><span>[+] Parsing intent...</span><br><span>[+] Accessing GitHub Mainframe...</span>";
+            resultsDiv.innerHTML = "<span style='color: #00ff00;'>[+] INITIATING PROTOCOL...</span><br><span>[+] Filtering for binary tags...</span><br><span>[+] Accessing Core Mainframe...</span>";
 
             fetch('https://ai-tek-finder.onrender.com/search?query=' + encodeURIComponent(query))
                 .then(response => response.json())
