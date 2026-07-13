@@ -26,6 +26,46 @@
         button.execute-btn { background-color: transparent; color: #00ff00; border: 1px solid #00ff00; padding: 12px 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         button.execute-btn:hover { background-color: #00ff00; color: #000; }
         #results { border: 1px dashed rgba(0, 255, 0, 0.5); background-color: rgba(0, 0, 0, 0.6); padding: 20px; min-height: 150px; max-height: 200px; overflow-y: auto; font-size: 0.95rem; }
+
+        /* MOBILE RESPONSIVE STYLES */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+                padding: 15px;
+            }
+            .terminal-container {
+                width: 100%;
+                padding: 25px 15px;
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+            h1 {
+                font-size: 1.4rem;
+                letter-spacing: 1px;
+            }
+            .back-link {
+                margin-bottom: 15px;
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+            .input-group {
+                flex-direction: column; /* Stack input field and search button */
+                gap: 10px;
+            }
+            input {
+                width: 100%;
+                font-size: 1rem;
+            }
+            button.execute-btn {
+                width: 100%;
+                padding: 12px;
+            }
+            #results {
+                min-height: 220px; /* Taller viewport to display mobile packages nicely */
+                max-height: 320px;
+            }
+        }
     </style>
 </head>
 <body>
