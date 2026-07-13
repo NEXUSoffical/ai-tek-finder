@@ -97,7 +97,8 @@
             const resultsDiv = document.getElementById('results');
             if(!query) return;
             resultsDiv.innerHTML = "<span>[+] Parsing Global Intelligence Documentation Indexes...</span>";
-            fetch(`https://ai-tek-finder.onrender.com/search?query=${encodeURIComponent(query + ' tutorial guides')}`)
+            // FIXED: Sending exact raw query so search APIs don't choke on appended words
+            fetch(`https://ai-tek-finder.onrender.com/search?query=${encodeURIComponent(query)}`)
                 .then(r => r.json()).then(d => { resultsDiv.innerHTML = d.results; });
         }
         const canvas = document.getElementById('matrixCanvas'); const ctx = canvas.getContext('2d');
