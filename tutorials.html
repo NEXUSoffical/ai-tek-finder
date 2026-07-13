@@ -43,7 +43,6 @@
             font-size: 0.95rem; 
         }
 
-        /* TUTORIAL CARD DESIGN */
         .tutorial-card {
             border: 1px solid #00ff00;
             padding: 15px;
@@ -67,7 +66,6 @@
         .watch-btn { color: #000; background: #00ff00; text-decoration: none; padding: 2px 8px; font-size: 0.8rem; font-weight: bold; }
         .watch-btn:hover { background: #fff; }
 
-        /* MOBILE RESPONSIVE STYLES */
         @media (max-width: 768px) {
             body {
                 overflow-y: auto;
@@ -135,27 +133,23 @@
             setTimeout(() => {
                 const capitalizedQuery = query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                 
-                // Real high-quality tutorial video mapping database
-                let video1 = "https://www.youtube.com/watch?v=LOhfqjmasi0"; // Default generic video
-                let video2 = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-                let video3 = "https://www.youtube.com/watch?v=S8lMTw_Rss4";
+                // MAPPED HIGH-QUALITY LESSONS (DIRECT URL WATCH PLAYERS)
+                let video1 = "https://www.youtube.com/watch?v=LOhfqjmasi0"; // Brackeys Godot Beginner
+                let video2 = "https://www.youtube.com/watch?v=nAh_Kx5Zh5Q"; // Clear Code Godot
+                let video3 = "https://www.youtube.com/watch?v=Mc13ZkyvSg0"; // Heartbeast RPG Godot
 
-                if (query.includes("godot")) {
-                    video1 = "https://www.youtube.com/watch?v=LOhfqjmasi0"; // Brackeys Godot Beginner Tutorial
-                    video2 = "https://www.youtube.com/watch?v=nAh_Kx5Zh5Q"; // Clear Code 12-hour Godot Course
-                    video3 = "https://www.youtube.com/watch?v=Mc13ZkyvSg0"; // Heartbeast 2D Godot RPG Tutorial
-                } else if (query.includes("python")) {
-                    video1 = "https://www.youtube.com/watch?v=_uQrJ0TkZlc"; // Mosh Python for Beginners
-                    video2 = "https://www.youtube.com/watch?v=rfscVS0vtbw"; // FreeCodeCamp Python Course
-                    video3 = "https://www.youtube.com/watch?v=8Ext9G7xuaM"; // Python Game Dev Tutorial
+                if (query.includes("python")) {
+                    video1 = "https://www.youtube.com/watch?v=_uQrJ0TkZlc"; // Mosh Python
+                    video2 = "https://www.youtube.com/watch?v=rfscVS0vtbw"; // FreeCodeCamp Python
+                    video3 = "https://www.youtube.com/watch?v=8Ext9G7xuaM"; // Python Game Dev
                 } else if (query.includes("html") || query.includes("css") || query.includes("web")) {
-                    video1 = "https://www.youtube.com/watch?v=hcM61YgOIs8"; // SuperSimpleDev HTML/CSS Course
-                    video2 = "https://www.youtube.com/watch?v=G3e-cpL7ofc"; // FreeCodeCamp HTML Course
-                    video3 = "https://www.youtube.com/watch?v=0pThdrErTvU"; // CSS Grid & Flexbox Crash Course
+                    video1 = "https://www.youtube.com/watch?v=hcM61YgOIs8"; // SuperSimpleDev HTML/CSS
+                    video2 = "https://www.youtube.com/watch?v=G3e-cpL7ofc"; // FreeCodeCamp HTML
+                    video3 = "https://www.youtube.com/watch?v=0pThdrErTvU"; // Flexbox/Grid
                 } else if (query.includes("javascript") || query.includes("js")) {
-                    video1 = "https://www.youtube.com/watch?v=VlPiVmY_mvY"; // SuperSimpleDev JS Tutorial
-                    video2 = "https://www.youtube.com/watch?v=EfAl997gOss"; // Clever Programmer JS Course
-                    video3 = "https://www.youtube.com/watch?v=hdI2bqOjy3c"; // JavaScript DOM Crash Course
+                    video1 = "https://www.youtube.com/watch?v=VlPiVmY_mvY"; // SuperSimpleDev JS
+                    video2 = "https://www.youtube.com/watch?v=EfAl997gOss"; // Clever Programmer JS
+                    video3 = "https://www.youtube.com/watch?v=hdI2bqOjy3c"; // DOM Tutorial
                 }
 
                 resultsDiv.innerHTML = `
