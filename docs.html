@@ -45,6 +45,38 @@
         ul { margin-left: 20px; margin-bottom: 15px; }
         li { margin-bottom: 5px; color: #aaa; }
         strong { color: #00ff00; }
+
+        /* MOBILE RESPONSIVE STYLES */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+                padding: 15px;
+            }
+            .terminal-container {
+                width: calc(100% - 30px);
+                margin: 20px auto;
+                padding: 25px 15px;
+            }
+            h1 {
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            .back-link {
+                margin-bottom: 15px;
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+            .docs-body {
+                padding: 15px;
+                height: 420px; 
+                font-size: 0.85rem;
+            }
+            h2 {
+                font-size: 1rem;
+                margin-top: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -54,7 +86,7 @@
         <span class="corner c-tr">+</span>
         <span class="corner c-bl">+</span>
         <span class="corner c-br">+</span>
-        <a href="index.html" class="back-link"><< BACK TO HUB</a>
+        <a href="index.html" class="back-link"><_ BACK TO HUB</a>
         <h1>> SYSTEM DOCUMENTATION _</h1>
         <br>
         <div class="docs-body">

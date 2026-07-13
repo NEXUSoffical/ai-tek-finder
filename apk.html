@@ -18,6 +18,13 @@
             background-color: rgba(0, 0, 0, 0.85); border: 1px solid #00ff00; 
             box-shadow: 0 0 25px rgba(0, 255, 0, 0.3); width: 90%; max-width: 700px; padding: 35px 30px;
         }
+        .corner {
+            position: absolute; color: #00ff00; font-size: 1.2rem; line-height: 1; background: #000;
+        }
+        .c-tl { top: -9px; left: -6px; padding: 0 4px; }
+        .c-tr { top: -9px; right: -6px; padding: 0 4px; }
+        .c-bl { bottom: -9px; left: -6px; padding: 0 4px; }
+        .c-br { bottom: -9px; right: -6px; padding: 0 4px; }
         h1 { font-size: 1.8rem; font-weight: bold; margin-bottom: 5px; letter-spacing: 2px; }
         .back-link { display: inline-block; color: #00ff00; text-decoration: none; border: 1px solid #00ff00; padding: 4px 10px; font-size: 0.8rem; margin-bottom: 20px; font-weight: bold; }
         .back-link:hover { background: #00ff00; color: #000; }
@@ -35,10 +42,9 @@
                 padding: 15px;
             }
             .terminal-container {
-                width: 100%;
+                width: calc(100% - 30px);
+                margin: 20px auto;
                 padding: 25px 15px;
-                margin-top: 15px;
-                margin-bottom: 15px;
             }
             h1 {
                 font-size: 1.4rem;
@@ -50,7 +56,7 @@
                 font-size: 0.75rem;
             }
             .input-group {
-                flex-direction: column; /* Stack input field and search button */
+                flex-direction: column; 
                 gap: 10px;
             }
             input {
@@ -62,7 +68,7 @@
                 padding: 12px;
             }
             #results {
-                min-height: 220px; /* Taller viewport to display mobile packages nicely */
+                min-height: 220px; 
                 max-height: 320px;
             }
         }
@@ -71,6 +77,10 @@
 <body>
     <canvas id="matrixCanvas"></canvas>
     <div class="terminal-container">
+        <span class="corner c-tl">+</span>
+        <span class="corner c-tr">+</span>
+        <span class="corner c-bl">+</span>
+        <span class="corner c-br">+</span>
         <a href="index.html" class="back-link"><< BACK TO HUB</a>
         <h1>> APK / API FINDER _</h1>
         <br>

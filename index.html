@@ -101,6 +101,42 @@
             color: #aaa;
             line-height: 1.4;
         }
+
+        /* MOBILE RESPONSIVE STYLES */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+                padding: 15px;
+            }
+            .terminal-container {
+                width: calc(100% - 30px); 
+                margin: 20px auto;
+                padding: 25px 15px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .subtitle {
+                font-size: 0.75rem;
+                margin-bottom: 20px;
+            }
+            .hub-grid {
+                grid-template-columns: 1fr; 
+                gap: 15px;
+                min-height: auto;
+            }
+            .hub-card {
+                padding: 20px 15px;
+            }
+            .hub-card h2 {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            .hub-card p {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -115,17 +151,14 @@
         <div class="subtitle">CENTRAL PORTAL HUB // WELCOME USER // $TEKFIND</div>
         
         <div class="hub-grid">
-            <!-- Card 1: GitHub Platform -->
             <a href="tek.html" class="hub-card">
                 <h2>[ TEK FINDER ]</h2>
                 <p>Launch global queries to analyze open-source code and track repository health ratings.</p>
             </a>
-            <!-- Card 2: APK Platform -->
             <a href="apk.html" class="hub-card">
                 <h2>[ APK/API FINDER ]</h2>
                 <p>Track live application packages and check safety integrity ratings across the web.</p>
             </a>
-            <!-- Card 3: Project Documentation (NEW) -->
             <a href="docs.html" class="hub-card">
                 <h2>[ SYSTEM DOCS ]</h2>
                 <p>Review the master blueprint, whitepaper, token utility mechanics, and the roadmap.</p>
