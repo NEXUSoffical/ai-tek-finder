@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEKFINDER Terminal | $TEKFIND</title>
+    <title>TEKFINDER Central Mainframe | $TEKFIND</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -34,7 +34,7 @@
             border: 1px solid #00ff00; 
             box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
             width: 90%;
-            max-width: 700px;
+            max-width: 750px;
             padding: 35px 30px;
         }
 
@@ -56,6 +56,7 @@
             margin-bottom: 5px; 
             letter-spacing: 2px; 
             text-shadow: 0 0 8px #00ff00;
+            text-align: center;
         }
         
         .subtitle {
@@ -63,17 +64,75 @@
             opacity: 0.7;
             font-size: 0.85rem;
             letter-spacing: 1px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .cursor { animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        p { font-size: 1rem; margin-bottom: 15px; color: #00ff00; opacity: 0.8; }
-        
-        .search-wrapper { margin-bottom: 20px; }
+        /* Application Panels Switcher */
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* MAIN HUB SCREEN GRID */
+        .hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 10px;
+            min-height: 220px;
+            align-items: center;
+        }
+
+        .hub-card {
+            background: rgba(0, 20, 0, 0.3);
+            border: 1px solid rgba(0, 255, 0, 0.4);
+            padding: 25px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hub-card:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .hub-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .hub-card p {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        /* BACK BUTTON */
+        .back-btn {
+            display: inline-block;
+            background: transparent;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 5px 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background: #00ff00;
+            color: #000;
+        }
+
+        /* TEK FINDER SCANNER UI */
         .input-group { display: flex; gap: 10px; width: 100%; margin-bottom: 15px;}
-        
         input {
             flex: 1;
             background-color: transparent;
@@ -105,11 +164,43 @@
             border: 1px dashed rgba(0, 255, 0, 0.5);
             background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
-            min-height: 150px;
-            max-height: 200px;
+            min-height: 180px;
+            max-height: 220px;
             overflow-y: auto;
             font-size: 0.95rem;
             line-height: 1.5;
+        }
+
+        /* APK/API FINDER UI */
+        .binary-list {
+            border: 1px dashed rgba(0, 255, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            min-height: 220px;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+        .binary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+        .binary-item:last-child { border-bottom: none; }
+        .bin-info { font-size: 0.95rem; text-align: left; }
+        .bin-type { color: #aaa; font-size: 0.8rem; margin-top: 3px; }
+        .download-link {
+            color: #00ff00;
+            text-decoration: none;
+            border: 1px solid #00ff00;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .download-link:hover {
+            background: #00ff00;
+            color: #000;
         }
 
         .mute-btn {
@@ -125,24 +216,6 @@
             font-size: 0.8rem;
         }
         .mute-btn:hover { background: #00ff00; color: #000; }
-        
-        .nav-btn {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #000;
-            background: #00ff00;
-            padding: 5px 15px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            border: 1px solid #00ff00;
-            font-family: 'Courier New', Courier, monospace;
-            transition: all 0.2s;
-        }
-        .nav-btn:hover {
-            background: #000;
-            color: #00ff00;
-        }
     </style>
 </head>
 <body>
@@ -154,26 +227,70 @@
         <span class="corner c-bl">+</span>
         <span class="corner c-br">+</span>
 
-        <a href="about.html" class="nav-btn">[ READ SYSTEM DOCS ]</a>
-
-        <h1>> TEKFINDER v1.0 <span class="cursor">_</span></h1>
-        <div class="subtitle">SCANNING THE OPEN SOURCE MAINFRAME FOR UNDERGROUND TECH</div>
+        <h1>> TEKFINDER MAINFRAME <span class="cursor">_</span></h1>
+        <div class="subtitle">CORE INTELLIGENCE HUB // WELCOME USER // $TEKFIND</div>
         
-        <div class="search-wrapper">
-            <div class="input-group">
-                <input type="text" id="userInput" placeholder="agent://prompt">
-                <button onclick="searchTech()" class="execute-btn">[ SEARCH ]</button>
+        <!-- PANEL 1: THE CENTRAL MAIN HUB (Default View) -->
+        <div id="hubPanel" class="view-panel active">
+            <div class="hub-grid">
+                <div class="hub-card" onclick="switchView('scanner')">
+                    <h2>[ TEK FINDER ]</h2>
+                    <p>Execute global mainframe queries to extract open-source tech assets & track repos architecture health ratings.</p>
+                </div>
+                <div class="hub-card" onclick="switchView('binaries')">
+                    <h2>[ APK/API FINDER ]</h2>
+                    <p>Access the core underground database file index. Directly download binaries, script frameworks, and operational hooks.</p>
+                </div>
             </div>
         </div>
 
-        <h3>[ TERMINAL OUTPUT ]</h3>
-        <div id="results">SYSTEM READY. AWAITING INPUT...</div>
+        <!-- PANEL 2: TEK FINDER (Search Engine) -->
+        <div id="scannerPanel" class="view-panel">
+            <button class="back-btn" onclick="switchView('hub')">&lt;&lt; RETURN TO MAIN HUB</button>
+            <div class="search-wrapper">
+                <div class="input-group">
+                    <input type="text" id="userInput" placeholder="agent://prompt">
+                    <button onclick="searchTech()" class="execute-btn">[ SEARCH ]</button>
+                </div>
+            </div>
+            <h3>[ RUNNING OPERATIONAL SEARCH SCAN ]</h3>
+            <div id="results">SYSTEM READY. AWAITING TARGET INPUT...</div>
+        </div>
+
+        <!-- PANEL 3: APK/API FINDER (Database Downloads) -->
+        <div id="binariesPanel" class="view-panel">
+            <button class="back-btn" onclick="switchView('hub')">&lt;&lt; RETURN TO MAIN HUB</button>
+            <div class="binary-list">
+                <div class="binary-item">
+                    <div class="bin-info">
+                        <div>tekfinder_mobile_core.apk</div>
+                        <div class="bin-type">PACKAGED ANDROID INTERFACE // SIZE: 14.2 MB</div>
+                    </div>
+                    <a href="#" class="download-link">[ GET APK ]</a>
+                </div>
+                <div class="binary-item">
+                    <div class="bin-info">
+                        <div>mainframe_bridge_hook.py</div>
+                        <div class="bin-type">EXTERNAL API ACCESS HOOKS // LANGUAGE: PYTHON</div>
+                    </div>
+                    <a href="#" class="download-link">[ GET API ]</a>
+                </div>
+                <div class="binary-item">
+                    <div class="bin-info">
+                        <div>tek_scanner_firmware.bin</div>
+                        <div class="bin-type">ENCRYPTED HARDWARE SYSTEM BINARY // SIZE: 2.1 MB</div>
+                    </div>
+                    <a href="#" class="download-link">[ GET TEK ]</a>
+                </div>
+            </div>
+        </div>
 
         <button id="muteBtn" onclick="toggleMute()" class="mute-btn">[ SOUND: ON ]</button>
     </div>
 
     <script>
         let isMuted = false;
+
         function toggleMute() {
             isMuted = !isMuted;
             const btn = document.getElementById('muteBtn');
@@ -205,6 +322,23 @@
             } catch(e) {}
         }
 
+        // Swaps between Main Hub, Search Console, and File downloads
+        function switchView(viewName) {
+            playBeep(500, 'sine', 80);
+            
+            // Hide all views first
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Show selected view
+            if (viewName === 'hub') {
+                document.getElementById('hubPanel').classList.add('active');
+            } else if (viewName === 'scanner') {
+                document.getElementById('scannerPanel').classList.add('active');
+            } else if (viewName === 'binaries') {
+                document.getElementById('binariesPanel').classList.add('active');
+            }
+        }
+
         function searchTech() {
             const query = document.getElementById('userInput').value;
             const resultsDiv = document.getElementById('results');
@@ -218,7 +352,7 @@
             playBeep(400, 'square', 150);
             resultsDiv.innerHTML = "<span style='color: #00ff00;'>[+] INITIATING PROTOCOL...</span><br><span>[+] Parsing intent...</span><br><span>[+] Accessing GitHub Mainframe...</span>";
 
-            fetch(`https://ai-tek-finder.onrender.com/search?query=${encodeURIComponent(query)}`)
+            fetch('https://ai-tek-finder.onrender.com/search?query=' + encodeURIComponent(query))
                 .then(response => response.json())
                 .then(data => {
                     playBeep(800, 'sine', 200);
@@ -246,7 +380,7 @@
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#00ff00'; 
-            ctx.font = `bold ${fontSize}px Courier New`;
+            ctx.font = 'bold ' + fontSize + 'px Courier New';
             for (let i = 0; i < drops.length; i++) {
                 const text = letters[Math.floor(Math.random() * letters.length)];
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
