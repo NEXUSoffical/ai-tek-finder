@@ -43,7 +43,6 @@
             font-size: 0.95rem; 
         }
 
-        /* TUTORIAL CARD DESIGN */
         .tutorial-card {
             border: 1px solid #00ff00;
             padding: 15px;
@@ -98,53 +97,37 @@
         <h1>> TUTORIAL AGENT CORE _</h1>
         <br>
         <div class="input-group">
-            <input type="text" id="userInput" placeholder="E.g., fixing stick drift ps5">
+            <input type="text" id="userInput" placeholder="E.g., how to fix stick drift ps5">
             <button onclick="searchTutorial()" class="execute-btn">[ EXTRACT ]</button>
         </div>
         <h3>[ AI COMMENT-RANKED MESH ]</h3>
         <div id="results">AWAITING SYSTEM PARAMETERS...</div>
     </div>
     <script>
-        function searchTutorial() {
+        async function searchTutorial() {
             const query = document.getElementById('userInput').value.trim();
             const resultsDiv = document.getElementById('results');
             if(!query) return;
             
-            resultsDiv.innerHTML = "<span>[+] Parsing Global Media Repositories...</span><br><span>[+] Running sentiment matrices over 500+ comments...</span>";
+            resultsDiv.innerHTML = "<span>[+] Bypassing local cache barriers...</span><br><span>[+] Running live extraction sequence on YouTube's mainframe...</span>";
             
-            setTimeout(() => {
-                const capitalizedQuery = query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            try {
+                // Fetch the live YouTube search results page through a CORS-bypass utility
+                const targetSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' tutorial')}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetSearchUrl)}`;
                 
-                // Creates a bulletproof, official YouTube search link that opens up exactly what they typed
-                const targetUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' tutorial')}`;
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("Extraction utility timed out.");
                 
-                resultsDiv.innerHTML = `
-                    <div class="tutorial-card">
-                        <div class="tutorial-title">${capitalizedQuery} - Top Video Match</div>
-                        <div class="tutorial-meta">PLATFORM: Official Stream // INDEX STATUS: VERIFIED</div>
-                        <div class="tutorial-desc">Nexus Agent identified optimal community sentiment ratings for this specific target. Click launch below to play this exact video guide.</div>
-                        <div class="rating-box">
-                            <span>Comment Rating: <span class="stars">★★★★★</span> (98% Approval)</span>
-                            <a href="${targetUrl}" target="_blank" class="watch-btn">LAUNCH VIDEO</a>
-                        </div>
-                    </div>
-                `;
-            }, 800); 
-        }
-        
-        const canvas = document.getElementById('matrixCanvas'); const ctx = canvas.getContext('2d');
-        canvas.height = window.innerHeight; canvas.width = window.innerWidth;
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
-        let drops = Array(Math.floor(canvas.width / 16)).fill(1);
-        function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#00ff00'; ctx.font = 'bold 16px Courier New';
-            drops.forEach((y, i) => {
-                ctx.fillText(letters[Math.floor(Math.random() * letters.length)], i * 16, y * 16);
-                if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
-            });
-        }
-        setInterval(draw, 35);
-    </script>
-</body>
-</html>
+                const data = await response.json();
+                const html = data.contents;
+                
+                // Extract video IDs using structural JSON matching patterns
+                const regex = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
+                let videoIds = [];
+                let match;
+                
+                while ((match = regex.exec(html)) !== null) {
+                    if (!videoIds.includes(match[1])) {
+                        videoIds.push(match[1]);
+                    }
