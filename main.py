@@ -150,9 +150,10 @@ def search():
         except Exception as e:
             return jsonify({"results": f"<span style='color: red;'>[-] TEK FINDER REPO FETCH ERROR: {str(e)}</span>"})
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-    @app.route('/trending', methods=['GET'])
+# -------------------------------------------------------------
+# ROUTE 3: Authenticated Trending Repo API
+# -------------------------------------------------------------
+@app.route('/trending', methods=['GET'])
 def get_trending():
     # Route the trending list through Python using our secret token!
     url = "https://api.github.com/search/repositories?q=stars:>1000&sort=stars&order=desc&per_page=3"
@@ -169,3 +170,8 @@ def get_trending():
         return jsonify(response.json())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    # Dynamically bind to Render's port
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
