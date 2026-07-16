@@ -46,7 +46,7 @@ def assess_safety(url, source_name):
 
 @app.route('/search', methods=['GET'])
 def search():
-    query = request.args.get('query', '')
+    query = request.args.get('query', '').strip()
     if not query:
         return jsonify({"results": "<span style='color: red;'>[-] ERROR: Empty query.</span>"})
     
@@ -54,7 +54,6 @@ def search():
     # ROUTE 1: Dedicated APK/API Finder (Global Web Search Matrix)
     # -------------------------------------------------------------
     if "apk" in query.lower():
-        # Clean up the query string for cleaner processing
         clean_keyword = query.lower().replace('apk', '').strip()
         encoded_keyword = urllib.parse.quote(clean_keyword)
         
@@ -65,7 +64,6 @@ def search():
             html_content = response.text
             links = re.findall(r'<a class="result__url" href="([^"]+)"', html_content)
             
-            # Dynamic fallback: If scraping fails, generate real direct-search links for that specific app
             if not links:
                 links = [
                     f"https://www.apkmirror.com/?searchtype=apk&s={encoded_keyword}",
@@ -97,19 +95,32 @@ def search():
     # ROUTE 2: Original TEK FINDER (Strict GitHub Repository Tracker)
     # -------------------------------------------------------------
     else:
-        gh_search_url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page=3"
+        gh_search_url = f"https://api.github.com/search/repositories?q={urllib.parse.quote(query)}&sort=stars&order=desc&per_page=3"
         headers = {"Accept": "application/vnd.github.v3+json"}
+        
+        # Check if GITHUB_TOKEN is added to Render
         github_token = os.environ.get('GITHUB_TOKEN')
         if github_token:
             headers['Authorization'] = f"token {github_token}"
         
         try:
-            response = requests.get(gh_search_url, headers=headers)
-            data = response.json()
+            response = requests.get(gh_search_url, headers=headers, timeout=10)
+            
+            # CRITICAL FIX: Safe check for non-JSON block pages
+            try:
+                data = response.json()
+            except ValueError:
+                return jsonify({
+                    "results": (
+                        "<span style='color: #ff0000; font-weight: bold;'>[-] GITHUB API ACCESS BLOCKED</span><br><br>"
+                        "<span style='color: #aaa;'>Reason: GitHub rate-limited Render's shared IP address.</span><br>"
+                        "<span style='color: #aaa;'>Fix: Please add a <b>GITHUB_TOKEN</b> to your Render Environment Variables.</span>"
+                    )
+                })
             
             if 'items' not in data:
-                error_msg = data.get('message', 'Unknown GitHub interference.')
-                return jsonify({"results": f"<span style='color: yellow;'>[!] GITHUB FIREWALL: {error_msg}</span>"})
+                error_msg = data.get('message', 'GitHub rate limit exceeded.')
+                return jsonify({"results": f"<span style='color: yellow;'>[!] GITHUB API ERROR: {error_msg}</span>"})
                 
             if len(data['items']) == 0:
                 return jsonify({"results": f"<span style='color: yellow;'>[!] NO TARGETS FOUND for '{query}'.</span>"})
@@ -128,7 +139,7 @@ def search():
                 results_html += "<span style='color: #444;'>--------------------------</span><br><br>"
             return jsonify({"results": results_html})
         except Exception as e:
-            return jsonify({"results": f"<span style='color: red;'>[-] TEK FINDER ERROR: {str(e)}</span>"})
+            return jsonify({"results": f"<span style='color: red;'>[-] TEK FINDER REPO FETCH ERROR: {str(e)}</span>"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
