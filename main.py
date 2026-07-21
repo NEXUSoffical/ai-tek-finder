@@ -5,7 +5,6 @@ import datetime
 import os
 import re
 import urllib.parse
-import random
 import sqlite3
 
 app = Flask(__name__)
@@ -17,16 +16,13 @@ CORS(app)
 def init_db():
     conn = sqlite3.connect('nexus_metrics.db')
     c = conn.cursor()
-    # Create visits tracking table
     c.execute('''CREATE TABLE IF NOT EXISTS visits 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, page TEXT, ip TEXT)''')
-    # Create search tracking table
     c.execute('''CREATE TABLE IF NOT EXISTS searches 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, query TEXT, type TEXT)''')
     conn.commit()
     conn.close()
 
-# Initialize database on startup
 init_db()
 
 def log_search(query, search_type):
@@ -39,12 +35,11 @@ def log_search(query, search_type):
     except Exception as e:
         print(f"Tracking Error: {e}")
 
-# Helper to escape HTML characters
 def escape_html(text):
     return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 # -------------------------------------------------------------
-# ROUTE: Core Search Engine (APKs & Repos)
+# ROUTE: Core Search Engine
 # -------------------------------------------------------------
 @app.route('/search', methods=['GET'])
 def search():
@@ -121,6 +116,41 @@ def search():
         except Exception as e:
             return jsonify({"results": f"<span style='color: red;'>[-] FETCH ERROR: {str(e)}</span>"})
 
+# -------------------------------------------------------------
+# ROUTE: Code Translator Endpoint
+# -------------------------------------------------------------
+@app.route('/translate', methods=['POST'])
+def translate_code():
+    data = request.json or {}
+    code = data.get('code', '')
+    target_lang = data.get('target', 'javascript').lower()
+    
+    if not code:
+        return jsonify({"error": "Empty code payload"}), 400
+        
+    translated = code
+    
+    if target_lang in ['javascript', 'typescript']:
+        translated = translated.replace("def ", "function ")
+        translated = translated.replace("print(", "console.log(")
+        translated = translated.replace("True", "true").replace("False", "false")
+        translated = translated.replace("None", "null")
+        translated = re.sub(r'# (.*)', r'// \1', translated)
+    elif target_lang == 'rust':
+        translated = translated.replace("def ", "fn ")
+        translated = translated.replace("print(", "println!(")
+        translated = translated.replace("True", "true").replace("False", "false")
+        translated = re.sub(r'# (.*)', r'// \1', translated)
+    elif target_lang == 'go':
+        translated = translated.replace("def ", "func ")
+        translated = translated.replace("print(", "fmt.Println(")
+        translated = re.sub(r'# (.*)', r'// \1', translated)
+
+    return jsonify({
+        "translated_code": f"// Translated to {target_lang.upper()} via NEXUS AI Engine\n" + translated,
+        "target_lang": target_lang
+    })
+
 @app.route('/trending', methods=['GET'])
 def get_trending():
     return jsonify({"items": [{"name": "React", "html_url": "https://github.com/facebook/react", "description": "A declarative, efficient UI library.", "stargazers_count": 210000, "language": "JavaScript"}]})
@@ -138,7 +168,6 @@ def find_apis():
 def track_visit():
     data = request.json or {}
     page = data.get('page', 'Unknown Page')
-    # Use proxy header for real IP if hosted on Render
     ip = request.headers.get('X-Forwarded-For', request.remote_addr) 
     
     try:
@@ -154,26 +183,20 @@ def track_visit():
 @app.route('/api/admin/metrics', methods=['GET'])
 def admin_metrics():
     passkey = request.args.get('passkey', '')
-    # HARDCODED ADMIN PASSWORD: Change this if you want!
     if passkey != "NEXUS_OVERRIDE":
         return jsonify({"error": "Unauthorized Access. Disconnecting."}), 401
     
     try:
         conn = sqlite3.connect('nexus_metrics.db')
         c = conn.cursor()
-        
         c.execute("SELECT COUNT(*) FROM visits")
         total_visits = c.fetchone()[0]
-        
         c.execute("SELECT COUNT(DISTINCT ip) FROM visits")
         unique_visitors = c.fetchone()[0]
-        
         c.execute("SELECT page, COUNT(*) FROM visits GROUP BY page ORDER BY COUNT(*) DESC LIMIT 5")
         popular_pages = c.fetchall()
-
         c.execute("SELECT query, type, timestamp FROM searches ORDER BY id DESC LIMIT 10")
         recent_searches = c.fetchall()
-        
         conn.close()
         
         return jsonify({

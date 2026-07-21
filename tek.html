@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEKFINDER Platform</title>
+    <title>NEXUS TEKFINDER | Core Scanner</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -31,7 +31,6 @@
         .back-link { display: inline-block; color: #00ff00; text-decoration: none; border: 1px solid #00ff00; padding: 4px 10px; font-size: 0.8rem; margin-bottom: 20px; font-weight: bold; }
         .back-link:hover { background: #00ff00; color: #000; }
         
-        /* DUAL COLUMN STRUCTURE */
         .mainframe-columns {
             display: grid;
             grid-template-columns: 320px 1fr;
@@ -39,12 +38,11 @@
             margin-top: 10px;
         }
 
-        /* LEFT SIDE: TRENDING BOX */
         .trending-box {
             border: 1px dashed rgba(0, 255, 0, 0.5);
             background-color: rgba(0, 10, 0, 0.6);
             padding: 15px;
-            height: 350px;
+            height: 380px;
             overflow-y: auto;
             font-size: 0.85rem;
         }
@@ -59,16 +57,17 @@
             letter-spacing: 1px;
         }
 
-        /* RIGHT SIDE: SEARCH INTERFACE */
         .search-interface {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            height: 350px;
+            height: 380px;
         }
         .input-group { display: flex; gap: 10px; width: 100%; }
-        input { flex: 1; background-color: transparent; border: 1px solid #00ff00; color: #00ff00; padding: 12px 15px; font-size: 1.1rem; font-family: 'Courier New', Courier, monospace; outline: none; }
-        button.execute-btn { background-color: transparent; color: #00ff00; border: 1px solid #00ff00; padding: 12px 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        input, select { background-color: transparent; border: 1px solid #00ff00; color: #00ff00; padding: 12px 15px; font-size: 1rem; font-family: 'Courier New', Courier, monospace; outline: none; }
+        select option { background-color: #000; color: #00ff00; }
+        input { flex: 1; }
+        button.execute-btn { background-color: transparent; color: #00ff00; border: 1px solid #00ff00; padding: 12px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; }
         button.execute-btn:hover { background-color: #00ff00; color: #000; }
         
         #results { 
@@ -80,7 +79,6 @@
             font-size: 0.95rem; 
         }
 
-        /* CARD STYLINGS */
         .trend-item {
             border-bottom: 1px solid rgba(0, 255, 0, 0.2);
             padding: 8px 0;
@@ -94,7 +92,6 @@
         .trend-stats { font-size: 0.7rem; color: #00ff00; opacity: 0.8; }
         .highlight-star { color: #ffff00; }
 
-        /* BUTTON & CODE GENERATOR STYLES */
         .terminal-btn {
             background: transparent;
             color: #00ff00;
@@ -102,7 +99,7 @@
             font-family: 'Courier New', monospace;
             font-size: 0.8rem;
             padding: 4px 8px;
-            margin: 8px 0;
+            margin: 8px 4px 8px 0;
             cursor: pointer;
             text-transform: uppercase;
         }
@@ -122,37 +119,24 @@
             white-space: pre-wrap;
         }
 
-        /* MOBILE RESPONSIVE STYLES */
+        /* Translator Box Container */
+        .translator-panel {
+            border-top: 1px dashed rgba(0, 255, 0, 0.4);
+            padding-top: 10px;
+            margin-top: 5px;
+        }
+
         @media (max-width: 850px) {
-            body {
-                overflow-y: auto;
-                align-items: flex-start;
-                padding: 15px;
-            }
-            .terminal-container {
-                width: calc(100% - 10px);
-                margin: 15px auto;
-                padding: 20px 15px;
-            }
+            body { overflow-y: auto; align-items: flex-start; padding: 15px; }
+            .terminal-container { width: calc(100% - 10px); margin: 15px auto; padding: 20px 15px; }
             h1 { font-size: 1.3rem; letter-spacing: 1px; }
             .back-link { margin-bottom: 15px; padding: 4px 8px; font-size: 0.75rem; }
-            
-            .mainframe-columns {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-            .trending-box {
-                height: 200px;
-            }
-            .search-interface {
-                height: auto;
-            }
-            #results {
-                min-height: 200px;
-            }
+            .mainframe-columns { display: flex; flex-direction: column; gap: 15px; }
+            .trending-box { height: 200px; }
+            .search-interface { height: auto; }
+            #results { min-height: 200px; }
             .input-group { flex-direction: column; }
-            input, button.execute-btn { width: 100%; }
+            input, select, button.execute-btn { width: 100%; }
         }
     </style>
 </head>
@@ -167,25 +151,37 @@
         <h1>> TEK FINDER CORE _</h1>
         
         <div class="mainframe-columns">
-            <!-- LEFT COLUMN: DYNAMIC TRENDING REPOS -->
             <div class="trending-box">
                 <h3>[ LIVE TRENDING ]</h3>
                 <div id="trending-list"><span>[+] Initializing live node sync...</span></div>
             </div>
 
-            <!-- RIGHT COLUMN: LIVE INTERACTION & SEARCH -->
             <div class="search-interface">
                 <div class="input-group">
                     <input type="text" id="userInput" placeholder="agent://prompt">
                     <button onclick="searchTech()" class="execute-btn">[ SEARCH ]</button>
                 </div>
+                
+                <!-- TRANSLATOR CONTROL PANEL -->
+                <div class="translator-panel">
+                    <div class="input-group">
+                        <input type="text" id="transCodeInput" placeholder="Paste raw code snippet to translate...">
+                        <select id="targetLangSelect">
+                            <option value="javascript">JavaScript</option>
+                            <option value="typescript">TypeScript</option>
+                            <option value="rust">Rust</option>
+                            <option value="go">Go</option>
+                        </select>
+                        <button onclick="translateSnippet()" class="execute-btn">[ TRANSLATE ]</button>
+                    </div>
+                </div>
+
                 <div id="results">AWAITING SCAN COMMAND PARAMETERS...</div>
             </div>
         </div>
     </div>
     
     <script>
-        // Real-Time GitHub Popularity Tracker - Routed Securely through Backend!
         async function loadTrendingRepos() {
             const trendingList = document.getElementById('trending-list');
             try {
@@ -212,7 +208,6 @@
 
         window.onload = loadTrendingRepos;
 
-        // Toggle generation box visibility
         function toggleCode(elementId, snippet) {
             const codeBox = document.getElementById(elementId);
             if (codeBox.style.display === "none") {
@@ -223,18 +218,15 @@
             }
         }
 
-        // Animated Terminal Loader helper
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // Live AI Scrolling Scan Simulation 
         async function searchTech() {
             const query = document.getElementById('userInput').value.trim();
             const resultsDiv = document.getElementById('results');
             if(!query) return;
 
-            // Live-scrolling diagnostic steps
             const logSteps = [
                 "<span>[+] CONNECTING TO REMOTE DATA MATRIX PORT...</span>",
                 "<span>[+] HANDSHAKE SUCCESSFUL -> ESTABLISHING SECURE PROTOCOLS...</span>",
@@ -246,16 +238,13 @@
             resultsDiv.innerHTML = "";
             for (let i = 0; i < logSteps.length; i++) {
                 resultsDiv.innerHTML += logSteps[i] + "<br>";
-                resultsDiv.scrollTop = resultsDiv.scrollHeight; // Auto-scroll down
-                await sleep(400); // Create realistic terminal delay
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+                await sleep(350);
             }
             
             try {
                 const response = await fetch(`https://ai-tek-finder.onrender.com/search?query=${encodeURIComponent(query)}`);
-                
-                if (!response.ok) {
-                    throw new Error("SERVER_DISCONNECTED");
-                }
+                if (!response.ok) throw new Error("SERVER_DISCONNECTED");
                 
                 const data = await response.json();
                 resultsDiv.innerHTML = data.results || "<span>[!] Empty payload received from remote node.</span>";
@@ -267,6 +256,35 @@
                         <span style="color: #aaa;">Action: Please wait 30 seconds and click [ SEARCH ] again.</span>
                     </div>
                 `;
+            }
+        }
+
+        // Live Translation Execution Function
+        async function translateSnippet() {
+            const code = document.getElementById('transCodeInput').value.trim();
+            const target = document.getElementById('targetLangSelect').value;
+            const resultsDiv = document.getElementById('results');
+
+            if (!code) return;
+
+            resultsDiv.innerHTML = `<span>[+] PARSING AST TREE AND TRANSLATING TO ${target.toUpperCase()}...</span>`;
+
+            try {
+                const response = await fetch("https://ai-tek-finder.onrender.com/translate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: code, target: target })
+                });
+
+                const data = await response.json();
+                if (data.translated_code) {
+                    resultsDiv.innerHTML = `
+                        <span style="color: #00ff00;">[+] CODE TRANSLATION SUCCESSFUL</span><br><br>
+                        <pre class="code-box">${data.translated_code}</pre>
+                    `;
+                }
+            } catch (err) {
+                resultsDiv.innerHTML = `<span style="color: red;">[-] TRANSLATION ENGINE ERROR.</span>`;
             }
         }
 
@@ -283,6 +301,12 @@
             });
         }
         setInterval(draw, 35);
+
+        fetch("https://ai-tek-finder.onrender.com/api/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ page: window.location.pathname.split("/").pop() || "tek.html" })
+        }).catch(err => console.log("Tracker silent fail"));
     </script>
 </body>
 </html>
