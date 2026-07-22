@@ -4,6 +4,7 @@ import requests
 import datetime
 import os
 import re
+import json
 import urllib.parse
 import sqlite3
 
@@ -37,6 +38,110 @@ def log_search(query, search_type):
 
 def escape_html(text):
     return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+# -------------------------------------------------------------
+# ROUTE: NEXUS Studio AI App Generator Engine
+# -------------------------------------------------------------
+@app.route('/generate-app', methods=['POST'])
+def generate_app():
+    data = request.json or {}
+    prompt = data.get('prompt', '').strip()
+    
+    if not prompt:
+        return jsonify({"error": "Prompt payload is empty"}), 400
+
+    log_search(prompt, "STUDIO_AI_GEN")
+
+    groq_api_key = os.environ.get('GROQ_API_KEY')
+
+    # IF GROQ API KEY IS PROVIDED: USE LIVE LLM GENERATION
+    if groq_api_key:
+        try:
+            from groq import Groq
+            client = Groq(api_key=groq_api_key)
+
+            system_instruction = (
+                "You are the NEXUS AI Application Generator engine. "
+                "The user will describe a web application in plain English. "
+                "Return a strict JSON object with 3 keys: 'html', 'css', and 'js'.\n\n"
+                "RULES:\n"
+                "1. Return ONLY raw JSON (no markdown wrapper, no ```json or ```).\n"
+                "2. 'html' must contain body elements only (no <html>, <head>, or <script> tags).\n"
+                "3. 'css' must contain styling only (no <style> tags).\n"
+                "4. 'js' must contain interactive JavaScript logic only (no <script> tags).\n"
+                "5. Ensure green/dark mode styling matching the NEXUS matrix theme when appropriate."
+            )
+
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": f"Build this app: {prompt}"}
+                ],
+                temperature=0.2,
+                response_format={"type": "json_object"}
+            )
+
+            result_text = response.choices[0].message.content
+            app_data = json.loads(result_text)
+
+            return jsonify({
+                "html": app_data.get("html", "<div>App generation failed</div>"),
+                "css": app_data.get("css", "body { background: #000; color: #00ff00; }"),
+                "js": app_data.get("js", "// No JS provided")
+            })
+
+        except Exception as e:
+            print("Groq AI Engine Error:", str(e))
+            # Fallthrough to fallback builder if API fails
+
+    # FALLBACK BUILT-IN TEMPLATE BUILDER (No API Key Required)
+    title_clean = prompt.upper()
+    fallback_html = f"""<div class="app-card">
+  <h2>{title_clean}</h2>
+  <p>Status: Active Matrix Process</p>
+  <div id="display-val">0</div>
+  <div class="btn-group">
+    <button onclick="updateVal(1)">+ INCREASE</button>
+    <button onclick="updateVal(-1)">- DECREASE</button>
+    <button onclick="resetVal()">RESET</button>
+  </div>
+</div>"""
+
+    fallback_css = """body {
+  background: #050505; color: #00ff00;
+  font-family: 'Courier New', monospace;
+  display: flex; justify-content: center; align-items: center;
+  height: 100vh; margin: 0;
+}
+.app-card {
+  border: 1px dashed #00ff00; padding: 30px;
+  background: rgba(0,20,0,0.85); text-align: center;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+}
+#display-val { font-size: 3.5rem; margin: 20px 0; color: #fff; font-weight: bold; }
+.btn-group { display: flex; gap: 10px; justify-content: center; }
+button {
+  background: transparent; color: #00ff00; border: 1px solid #00ff00;
+  padding: 10px 15px; font-family: monospace; font-weight: bold; cursor: pointer;
+}
+button:hover { background: #00ff00; color: #000; }"""
+
+    fallback_js = """var count = 0;
+function updateVal(amt) {
+  count += amt;
+  document.getElementById('display-val').innerText = count;
+}
+function resetVal() {
+  count = 0;
+  document.getElementById('display-val').innerText = count;
+}"""
+
+    return jsonify({
+        "html": fallback_html,
+        "css": fallback_css,
+        "js": fallback_js
+    })
 
 # -------------------------------------------------------------
 # ROUTE: Core Search Engine
