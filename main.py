@@ -74,9 +74,9 @@ def generate_app():
             "Return ONLY a JSON object with 3 keys: 'html', 'css', and 'js'.\n\n"
             "RULES:\n"
             "1. Output valid JSON only (no markdown wrapping, no ```json or ```).\n"
-            "2. 'html' contains body elements only.\n"
-            "3. 'css' contains clean CSS styling only.\n"
-            "4. 'js' contains full working JavaScript interactive logic."
+            "2. If building a Canvas game, ensure the <canvas> element in 'html' includes explicit width and height attributes (e.g., width='400' height='500') and that the ID matches 'js' exactly.\n"
+            "3. 'css' must center elements and provide a clean dark-themed background.\n"
+            "4. 'js' must contain full, complete interactive logic without missing variable declarations."
         )
 
         models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
