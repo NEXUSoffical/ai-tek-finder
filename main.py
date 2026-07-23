@@ -69,15 +69,11 @@ def generate_app():
         }
         
         system_instruction = (
-            "You are the NEXUS AI Application Generator engine. "
-            "The user will describe a web application in plain English. "
-            "Return a strict JSON object with 3 keys: 'html', 'css', and 'js'.\n\n"
-            "RULES:\n"
-            "1. Return ONLY raw valid JSON (no markdown block, no ```json or ```).\n"
-            "2. 'html' must contain body elements only (no <html>, <head>, or <script> tags).\n"
-            "3. 'css' must contain styling only (no <style> tags).\n"
-            "4. 'js' must contain interactive JavaScript logic only (no <script> tags).\n"
-            "5. Ensure dark/matrix theme styling matching the NEXUS theme when appropriate."
+            "You are the NEXUS AI Application Generator. "
+            "Build a functional web application based on the user request. "
+            "Return JSON format with exact keys: 'html', 'css', 'js'. "
+            "Do not include HTML wrapper tags (like <!DOCTYPE>, <html>, <head>, or <body>). "
+            "Only return valid JSON inside."
         )
 
         models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
@@ -90,21 +86,19 @@ def generate_app():
                         {"role": "system", "content": system_instruction},
                         {"role": "user", "content": f"Build a complete web app: {prompt}"}
                     ],
-                    "response_format": {"type": "json_object"},
                     "temperature": 0.2
                 }
 
-                res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=20)
+                res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=25)
                 
                 if res.status_code == 200:
                     result_json = res.json()
                     content_text = result_json['choices'][0]['message']['content'].strip()
                     
-                    # Clean out markdown formatting if returned
-                    if content_text.startswith("```json"):
-                        content_text = content_text.replace("```json", "", 1).rstrip("`").strip()
-                    elif content_text.startswith("```"):
-                        content_text = content_text.replace("```", "", 1).rstrip("`").strip()
+                    # Clean response markdown syntax if model returns ```json wrapper
+                    if "```" in content_text:
+                        content_text = re.sub(r'```(?:json)?\n?', '', content_text)
+                        content_text = content_text.rstrip('`').strip()
 
                     app_data = json.loads(content_text)
 
@@ -119,7 +113,7 @@ def generate_app():
             except Exception as e:
                 print(f"Groq API Exception for {model_id}: {str(e)}")
 
-    # FALLBACK ENGINE IF KEY NOT SET OR API FAILS
+    # FALLBACK ENGINE
     title_clean = prompt.upper()
     fallback_html = f"""<div class="app-card">
   <h2>{title_clean}</h2>
@@ -181,7 +175,7 @@ def search():
         clean_keyword = query.lower().replace('apk', '').strip()
         encoded_keyword = urllib.parse.quote(clean_keyword)
         
-        search_url = f"https://html.duckduckgo.com/html/?q={encoded_keyword}+apk"
+        search_url = f"[https://html.duckduckgo.com/html/?q=](https://html.duckduckgo.com/html/?q=){encoded_keyword}+apk"
         try:
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
             response = requests.get(search_url, headers=headers, timeout=10)
@@ -190,9 +184,9 @@ def search():
             
             if not links:
                 links = [
-                    f"https://www.apkmirror.com/?searchtype=apk&s={encoded_keyword}",
-                    f"https://apkpure.com/search?q={encoded_keyword}",
-                    f"https://github.com/search?q={encoded_keyword}+apk"
+                    f"[https://www.apkmirror.com/?searchtype=apk&s=](https://www.apkmirror.com/?searchtype=apk&s=){encoded_keyword}",
+                    f"[https://apkpure.com/search?q=](https://apkpure.com/search?q=){encoded_keyword}",
+                    f"[https://github.com/search?q=](https://github.com/search?q=){encoded_keyword}+apk"
                 ]
             
             results_html = f"<span style='color: #00ff00;'>[+] GLOBAL NETWORK QUERY: '{clean_keyword.upper()}'</span><br><br>"
@@ -218,7 +212,7 @@ def search():
 
     else:
         log_search(query, "GITHUB_REPO")
-        gh_search_url = f"https://api.github.com/search/repositories?q={urllib.parse.quote(query)}&sort=stars&order=desc&per_page=3"
+        gh_search_url = f"[https://api.github.com/search/repositories?q=](https://api.github.com/search/repositories?q=){urllib.parse.quote(query)}&sort=stars&order=desc&per_page=3"
         headers = {"Accept": "application/vnd.github.v3+json", "User-Agent": "TEKFINDER-Core"}
         
         github_token = os.environ.get('GITHUB_TOKEN')
@@ -282,13 +276,13 @@ def translate_code():
 
 @app.route('/trending', methods=['GET'])
 def get_trending():
-    return jsonify({"items": [{"name": "React", "html_url": "https://github.com/facebook/react", "description": "A declarative, efficient UI library.", "stargazers_count": 210000, "language": "JavaScript"}]})
+    return jsonify({"items": [{"name": "React", "html_url": "[https://github.com/facebook/react](https://github.com/facebook/react)", "description": "A declarative, efficient UI library.", "stargazers_count": 210000, "language": "JavaScript"}]})
 
 @app.route('/find-apis', methods=['GET'])
 def find_apis():
     query = request.args.get('query', '').strip().lower()
     log_search(query or "random_apicall", "PUBLIC_API")
-    return jsonify({"apis": [{"name": "Cat Facts API", "url": "https://catfact.ninja/fact", "description": "Daily cat facts.", "category": "Animals"}]})
+    return jsonify({"apis": [{"name": "Cat Facts API", "url": "[https://catfact.ninja/fact](https://catfact.ninja/fact)", "description": "Daily cat facts.", "category": "Animals"}]})
 
 # -------------------------------------------------------------
 # ROUTE: Admin Tracking & Metrics Endpoint
