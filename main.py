@@ -63,51 +63,61 @@ def generate_app():
 
     # IF GROQ API KEY IS SET: USE DIRECT REST API CALL
     if groq_api_key:
-        try:
-            headers = {
-                "Authorization": f"Bearer {groq_api_key.strip()}",
-                "Content-Type": "application/json"
-            }
-            
-            system_instruction = (
-                "You are the NEXUS AI Application Generator engine. "
-                "The user will describe a web application in plain English. "
-                "Return a strict JSON object with 3 keys: 'html', 'css', and 'js'.\n\n"
-                "RULES:\n"
-                "1. Return ONLY raw JSON (no markdown wrapper, no ```json or ```).\n"
-                "2. 'html' must contain body elements only (no <html>, <head>, or <script> tags).\n"
-                "3. 'css' must contain styling only (no <style> tags).\n"
-                "4. 'js' must contain interactive JavaScript logic only (no <script> tags).\n"
-                "5. Ensure dark/matrix theme styling matching the NEXUS theme when appropriate."
-            )
+        headers = {
+            "Authorization": f"Bearer {groq_api_key.strip()}",
+            "Content-Type": "application/json"
+        }
+        
+        system_instruction = (
+            "You are the NEXUS AI Application Generator engine. "
+            "The user will describe a web application in plain English. "
+            "Return a strict JSON object with 3 keys: 'html', 'css', and 'js'.\n\n"
+            "RULES:\n"
+            "1. Return ONLY raw valid JSON (no markdown block, no ```json or ```).\n"
+            "2. 'html' must contain body elements only (no <html>, <head>, or <script> tags).\n"
+            "3. 'css' must contain styling only (no <style> tags).\n"
+            "4. 'js' must contain interactive JavaScript logic only (no <script> tags).\n"
+            "5. Ensure dark/matrix theme styling matching the NEXUS theme when appropriate."
+        )
 
-            payload = {
-                "model": "llama-3.3-70b-versatile",
-                "messages": [
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": f"Build a complete web app: {prompt}"}
-                ],
-                "response_format": {"type": "json_object"},
-                "temperature": 0.2
-            }
+        models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
 
-            res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=20)
-            
-            if res.status_code == 200:
-                result_json = res.json()
-                content_text = result_json['choices'][0]['message']['content']
-                app_data = json.loads(content_text)
+        for model_id in models_to_try:
+            try:
+                payload = {
+                    "model": model_id,
+                    "messages": [
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": f"Build a complete web app: {prompt}"}
+                    ],
+                    "response_format": {"type": "json_object"},
+                    "temperature": 0.2
+                }
 
-                return jsonify({
-                    "html": app_data.get("html", "<div>App generation error</div>"),
-                    "css": app_data.get("css", "body { background: #000; color: #00ff00; }"),
-                    "js": app_data.get("js", "// No JS generated")
-                })
-            else:
-                print("Groq API Error Code:", res.status_code, res.text)
+                res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=20)
+                
+                if res.status_code == 200:
+                    result_json = res.json()
+                    content_text = result_json['choices'][0]['message']['content'].strip()
+                    
+                    # Clean out markdown formatting if returned
+                    if content_text.startswith("```json"):
+                        content_text = content_text.replace("```json", "", 1).rstrip("`").strip()
+                    elif content_text.startswith("```"):
+                        content_text = content_text.replace("```", "", 1).rstrip("`").strip()
 
-        except Exception as e:
-            print("Groq API Request Exception:", str(e))
+                    app_data = json.loads(content_text)
+
+                    return jsonify({
+                        "html": app_data.get("html", "<div>App generation error</div>"),
+                        "css": app_data.get("css", "body { background: #000; color: #00ff00; }"),
+                        "js": app_data.get("js", "// No JS generated")
+                    })
+                else:
+                    print(f"Groq API Model {model_id} Error Code: {res.status_code} - {res.text}")
+
+            except Exception as e:
+                print(f"Groq API Exception for {model_id}: {str(e)}")
 
     # FALLBACK ENGINE IF KEY NOT SET OR API FAILS
     title_clean = prompt.upper()
