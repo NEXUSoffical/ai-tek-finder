@@ -53,6 +53,9 @@ def index():
 def generate_app():
     data = request.json or {}
     prompt = data.get('prompt', '').strip()
+    current_html = data.get('current_html', '')
+    current_css = data.get('current_css', '')
+    current_js = data.get('current_js', '')
     
     if not prompt:
         return jsonify({"error": "Prompt payload is empty"}), 400
@@ -61,7 +64,6 @@ def generate_app():
 
     groq_api_key = os.environ.get('GROQ_API_KEY')
 
-    # IF GROQ API KEY IS SET: USE DIRECT REST API CALL
     if groq_api_key:
         headers = {
             "Authorization": f"Bearer {groq_api_key.strip()}",
@@ -70,14 +72,19 @@ def generate_app():
         
         system_instruction = (
             "You are the NEXUS AI Application Generator engine. "
-            "Build a full, highly interactive single-page web app from the user request. "
+            "Your job is to either generate a new web app or modify/upgrade an existing one based on the user's request. "
             "Return ONLY a valid JSON object with 3 keys: 'html', 'css', and 'js'.\n\n"
-            "STRICT CODE SEPARATION RULES:\n"
-            "1. 'html': Do NOT include <!DOCTYPE>, <html>, <head>, <body>, <style>, or <script> tags. Provide strictly the inner DOM elements (e.g., <canvas id='gameCanvas' width='400' height='500'></canvas><div id='ui'></div>).\n"
-            "2. 'css': Provide full, beautiful styling here (neon synthwave colors, dark backgrounds, canvas borders, fonts). Do NOT embed CSS inside HTML.\n"
-            "3. 'js': Provide complete interactive JavaScript here. Bind click, keydown, and touch event listeners properly to the canvas or window for starting, jumping, and restarting the game loop cleanly.\n"
-            "4. Do NOT output markdown backticks (```json)."
+            "STRICT CODE & LAYOUT RULES:\n"
+            "1. 'html': Do NOT include <!DOCTYPE>, <html>, <head>, <body>, <style>, or <script> tags. Wrap everything inside a clean container div (e.g. <div id='game-wrapper'><canvas id='gameCanvas' width='400' height='500'></canvas><div id='overlay'>...</div></div>).\n"
+            "2. 'css': Use relative positioning for containers and absolute positioning for overlays so text/buttons sit cleanly over canvas without visual overlap. Style with sleek retro/dark themes.\n"
+            "3. 'js': Provide clean, functional JavaScript. Bind click, keydown, and touch event handlers properly to canvas or window.\n"
+            "4. ITERATIVE MODIFICATION: If existing code is provided in the prompt, preserve the existing working logic and ONLY modify or add what the user asked for!\n"
+            "5. Do NOT output markdown backticks (```json)."
         )
+
+        user_content = f"Instruction: {prompt}"
+        if current_html or current_css or current_js:
+            user_content += f"\n\nEXISTING CODEBASE TO MODIFY:\n---HTML---\n{current_html}\n---CSS---\n{current_css}\n---JS---\n{current_js}"
 
         models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
 
@@ -87,13 +94,13 @@ def generate_app():
                     "model": model_id,
                     "messages": [
                         {"role": "system", "content": system_instruction},
-                        {"role": "user", "content": f"Build a complete web app for: {prompt}"}
+                        {"role": "user", "content": user_content}
                     ],
                     "response_format": {"type": "json_object"},
                     "temperature": 0.2
                 }
 
-                res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=20)
+                res = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", headers=headers, json=payload, timeout=25)
                 
                 if res.status_code == 200:
                     result_json = res.json()
@@ -104,14 +111,14 @@ def generate_app():
                         content_text = re.sub(r'\n?```$', '', content_text).strip()
 
                     try:
-                        app_data = json.loads(content_text)
-                    except json.JSONDecodeError:
                         app_data = json.loads(content_text, strict=False)
+                    except Exception:
+                        app_data = json.loads(content_text)
 
                     return jsonify({
-                        "html": app_data.get("html", "<div>App generation error</div>"),
-                        "css": app_data.get("css", "body { background: #000; color: #00ff00; }"),
-                        "js": app_data.get("js", "// No JS generated")
+                        "html": app_data.get("html", current_html or "<div>App generation error</div>"),
+                        "css": app_data.get("css", current_css or "body { background: #000; color: #00ff00; }"),
+                        "js": app_data.get("js", current_js or "// No JS generated")
                     })
                 else:
                     print(f"Groq API Model {model_id} Error: {res.status_code} - {res.text}")
@@ -141,7 +148,11 @@ button { background: transparent; color: #00ff00; border: 1px solid #00ff00; pad
 function updateVal(amt) { count += amt; document.getElementById('display-val').innerText = count; }
 function resetVal() { count = 0; document.getElementById('display-val').innerText = count; }"""
 
-    return jsonify({"html": fallback_html, "css": fallback_css, "js": fallback_js})
+    return jsonify({
+        "html": current_html or fallback_html,
+        "css": current_css or fallback_css,
+        "js": current_js or fallback_js
+    })
 
 # -------------------------------------------------------------
 # ROUTE: Core Search Engine

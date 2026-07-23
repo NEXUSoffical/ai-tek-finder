@@ -7,19 +7,28 @@ var currentCode = {
 var activeTab = 'html';
 
 function switchTab(tab) {
-    currentCode[activeTab] = document.getElementById('codeEditor').value;
+    var editorElem = document.getElementById('codeEditor');
+    if (editorElem) {
+        currentCode[activeTab] = editorElem.value;
+    }
     activeTab = tab;
     
     var tabs = document.querySelectorAll('.tab');
     for (var i = 0; i < tabs.length; i++) {
         tabs[i].classList.remove('active');
     }
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.getElementById('codeEditor').value = currentCode[activeTab];
+    var activeTabElem = document.getElementById('tab-' + tab);
+    if (activeTabElem) {
+        activeTabElem.classList.add('active');
+    }
+    if (editorElem) {
+        editorElem.value = currentCode[activeTab];
+    }
 }
 
 function updatePreview() {
     var frame = document.getElementById('previewFrame');
+    if (!frame) return;
     var doc = frame.contentDocument || frame.contentWindow.document;
     doc.open();
     doc.write('<!DOCTYPE html><html><head><style>' + currentCode.css + '</style></head><body>' + currentCode.html + '<script>' + currentCode.js + '<\/script></body></html>');
@@ -27,26 +36,44 @@ function updatePreview() {
 }
 
 function updatePreviewFromEditor() {
-    currentCode[activeTab] = document.getElementById('codeEditor').value;
+    var editorElem = document.getElementById('codeEditor');
+    if (editorElem) {
+        currentCode[activeTab] = editorElem.value;
+    }
     updatePreview();
 }
 
 // -------------------------------------------------------------
-// LIVE BACKEND GENERATE ENGINE CALL
+# LIVE BACKEND GENERATE ENGINE CALL (WITH ITERATIVE MODIFICATION)
 // -------------------------------------------------------------
 async function generateApp() {
-    var prompt = document.getElementById('appPrompt').value.trim();
+    var promptInput = document.getElementById('appPrompt');
+    if (!promptInput) return;
+    var prompt = promptInput.value.trim();
     if (!prompt) return;
 
+    // Save current active editor contents into memory before sending
+    var editorElem = document.getElementById('codeEditor');
+    if (editorElem) {
+        currentCode[activeTab] = editorElem.value;
+    }
+
     var statusElem = document.getElementById('previewStatus');
-    statusElem.innerText = "⏳ GENERATING LIVE AI APP...";
-    statusElem.style.color = "#ffff00";
+    if (statusElem) {
+        statusElem.innerText = "⏳ MODIFYING/BUILDING AI APP...";
+        statusElem.style.color = "#ffff00";
+    }
 
     try {
         var response = await fetch("https://ai-tek-finder.onrender.com/generate-app", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: prompt })
+            body: JSON.stringify({ 
+                prompt: prompt,
+                current_html: currentCode.html,
+                current_css: currentCode.css,
+                current_js: currentCode.js
+            })
         });
 
         if (!response.ok) {
@@ -55,45 +82,58 @@ async function generateApp() {
 
         var data = await response.json();
 
-        currentCode.html = data.html || "<div>Error parsing HTML</div>";
-        currentCode.css = data.css || "body { background: #000; color: #00ff00; }";
-        currentCode.js = data.js || "// No JS returned";
+        currentCode.html = data.html || currentCode.html;
+        currentCode.css = data.css || currentCode.css;
+        currentCode.js = data.js || currentCode.js;
 
-        document.getElementById('codeEditor').value = currentCode[activeTab];
+        if (editorElem) {
+            editorElem.value = currentCode[activeTab];
+        }
         updatePreview();
 
-        statusElem.innerText = "● LIVE";
-        statusElem.style.color = "#00ff00";
+        if (statusElem) {
+            statusElem.innerText = "● LIVE";
+            statusElem.style.color = "#00ff00";
+        }
 
     } catch (err) {
         console.error("Studio AI Generation Failed:", err);
         
-        // Fallback card if offline
         currentCode.html = '<div class="app-container">\n  <h2>' + prompt.toUpperCase() + '</h2>\n  <p>Connection Error to Backend Engine</p>\n</div>';
         currentCode.css = 'body { background: #050505; color: #ff0000; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }\n.app-container { border: 1px dashed #ff0000; padding: 25px; text-align: center; }';
         currentCode.js = '// Check Render connection';
 
-        document.getElementById('codeEditor').value = currentCode[activeTab];
+        if (editorElem) {
+            editorElem.value = currentCode[activeTab];
+        }
         updatePreview();
 
-        statusElem.innerText = "● OFFLINE / FALLBACK";
-        statusElem.style.color = "#ff0000";
+        if (statusElem) {
+            statusElem.innerText = "● OFFLINE / FALLBACK";
+            statusElem.style.color = "#ff0000";
+        }
     }
 }
 
 function loadPreset(type) {
+    var promptInput = document.getElementById('appPrompt');
+    if (!promptInput) return;
+
     if (type === 'pomodoro') {
-        document.getElementById('appPrompt').value = "Build a 25-minute Pomodoro Timer with start and reset controls.";
+        promptInput.value = "Build a 25-minute Pomodoro Timer with start and reset controls.";
     } else if (type === 'crypto') {
-        document.getElementById('appPrompt').value = "Create a real-time crypto price card layout for SOL and BTC.";
+        promptInput.value = "Create a real-time crypto price card layout for SOL and BTC.";
     } else if (type === 'todo') {
-        document.getElementById('appPrompt').value = "Build a lightweight Kanban task list with add and delete functionality.";
+        promptInput.value = "Build a lightweight Kanban task list with add and delete functionality.";
     }
     generateApp();
 }
 
 window.onload = function() {
-    document.getElementById('codeEditor').value = currentCode.html;
+    var editorElem = document.getElementById('codeEditor');
+    if (editorElem) {
+        editorElem.value = currentCode.html;
+    }
     updatePreview();
 
     // Matrix Background Effect
